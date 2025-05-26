@@ -827,7 +827,7 @@ Value Search::Worker::search(
             int evalDelta = ss->staticEval - (ss - 1)->staticEval;
             if ((~us == WHITE && evalDelta > 50) || (~us == BLACK && evalDelta < -50))
                 update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, bonus * 512 / 1024);
-        }   
+        }
     }
 
     // Set up the improving flag, which is true if current static evaluation is
@@ -853,19 +853,20 @@ Value Search::Worker::search(
     // The depth condition is important for mate finding.
     {
         auto futility_margin = [&](Depth d) {
-            Value futilityMult = 93 + 20 * (cutNode && !ss->ttHit); // MODIFIED LINE
+            Value futilityMult = 93 - 20 * (cutNode && !ss->ttHit);
 
             return futilityMult * d                      //
                  - improving * futilityMult * 2          //
                  - opponentWorsening * futilityMult / 3  //
                  + (ss - 1)->statScore / 376             //
-                 + std::abs(correctionValue) / 168639;   // CORRECTED LINE TO ADDRESS ERROR
+                 + std::abs(correctionValue) / 168639;
         };
 
         if (!ss->ttPv && depth < 14 && eval - futility_margin(depth) >= beta && eval >= beta
             && (!ttData.move || ttCapture) && !is_loss(beta) && !is_win(eval))
             return beta + (eval - beta) / 3;
     }
+
     // Step 9. Null move search with verification search
     if (cutNode && (ss - 1)->currentMove != Move::null() && eval >= beta
         && ss->staticEval >= beta - 19 * depth + 389 && !excludedMove && pos.non_pawn_material(us)
