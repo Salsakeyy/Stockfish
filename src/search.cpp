@@ -819,8 +819,15 @@ Value Search::Worker::search(
         int bonus = std::clamp(-10 * int((ss - 1)->staticEval + ss->staticEval), -1858, 1492) + 661;
         thisThread->mainHistory[~us][((ss - 1)->currentMove).from_to()] << bonus * 1057 / 1024;
         if (type_of(pos.piece_on(prevSq)) != PAWN && ((ss - 1)->currentMove).type_of() != PROMOTION)
+        {
             thisThread->pawnHistory[pawn_structure_index(pos)][pos.piece_on(prevSq)][prevSq]
-              << bonus * 1266 / 1024;
+            << bonus * 1266 / 1024;
+        
+            // Update continuation history for moves that significantly improved eval for the side that played them
+            int evalDelta = ss->staticEval - (ss - 1)->staticEval;
+            if ((~us == WHITE && evalDelta > 50) || (~us == BLACK && evalDelta < -50))
+                update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, bonus * 512 / 1024);
+        }   
     }
 
     // Set up the improving flag, which is true if current static evaluation is
