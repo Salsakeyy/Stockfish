@@ -852,7 +852,7 @@ Value Search::Worker::search(
                  - improving * futilityMult * 2          //
                  - opponentWorsening * futilityMult / 3  //
                  + (ss - 1)->statScore / 376             //
-                 + absCorrectionValue / 168639;
+                 + std::abs(correctionValue) / 168639;   // CORRECTED LINE TO ADDRESS ERROR
         };
 
         if (!ss->ttPv && depth < 14 && eval - futility_margin(depth) >= beta && eval >= beta
