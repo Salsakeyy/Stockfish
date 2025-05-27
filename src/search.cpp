@@ -53,6 +53,10 @@ namespace Stockfish {
 
 namespace TB = Tablebases;
 
+int ContHistThreshold = 50;  
+int ContHistBonus = 512;     
+
+
 void syzygy_extend_pv(const OptionsMap&            options,
                       const Search::LimitsType&    limits,
                       Stockfish::Position&         pos,
@@ -816,17 +820,18 @@ Value Search::Worker::search(
     if (((ss - 1)->currentMove).is_ok() && !(ss - 1)->inCheck && !priorCapture
         && (ttData.depth - 2) <= depth)
     {
-        int bonus = std::clamp(-10 * int((ss - 1)->staticEval + ss->staticEval), -1858, 1492) + 661;
+        int evalDelta = ss->staticEval - (ss - 1)->staticEval;
+        int bonus = std::clamp(-10 * evalDelta, -1858, 1492) + 661;
         thisThread->mainHistory[~us][((ss - 1)->currentMove).from_to()] << bonus * 1057 / 1024;
         if (type_of(pos.piece_on(prevSq)) != PAWN && ((ss - 1)->currentMove).type_of() != PROMOTION)
         {
             thisThread->pawnHistory[pawn_structure_index(pos)][pos.piece_on(prevSq)][prevSq]
             << bonus * 1266 / 1024;
         
-            // Update continuation history for moves that significantly improved eval for the side that played them
-            int evalDelta = ss->staticEval - (ss - 1)->staticEval;
-            if ((us == BLACK && evalDelta > 50) || (us == WHITE && evalDelta < -50))
-                update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, bonus * 512 / 1024);
+            // Update continuation history for moves that significantly improved position
+            if (evalDelta < -ContHistThreshold)
+                update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, 
+                                        bonus * ContHistBonus / 1024);
         }
     }
 
@@ -2242,5 +2247,6 @@ bool RootMove::extract_ponder_from_tt(const TranspositionTable& tt, Position& po
     return pv.size() > 1;
 }
 
+TUNE(ContHistThreshold, ContHistBonus);
 
 }  // namespace Stockfish
