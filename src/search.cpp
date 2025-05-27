@@ -825,7 +825,7 @@ Value Search::Worker::search(
         
             // Update continuation history for moves that significantly improved eval for the side that played them
             int evalDelta = ss->staticEval - (ss - 1)->staticEval;
-            if ((~us == WHITE && evalDelta > 50) || (~us == BLACK && evalDelta < -50))
+            if ((us == BLACK && evalDelta > 50) || (us == WHITE && evalDelta < -50))
                 update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, bonus * 512 / 1024);
         }
     }
