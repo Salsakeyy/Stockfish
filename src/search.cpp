@@ -820,7 +820,7 @@ Value Search::Worker::search(
     if (((ss - 1)->currentMove).is_ok() && !(ss - 1)->inCheck && !priorCapture
         && (ttData.depth - 2) <= depth)
     {
-        int evalDelta = ss->staticEval - (ss - 1)->staticEval;
+        int evalDelta = ss->staticEval + (ss - 1)->staticEval;
         int bonus = std::clamp(-10 * evalDelta, -1858, 1492) + 661;
         thisThread->mainHistory[~us][((ss - 1)->currentMove).from_to()] << bonus * 1057 / 1024;
         if (type_of(pos.piece_on(prevSq)) != PAWN && ((ss - 1)->currentMove).type_of() != PROMOTION)
