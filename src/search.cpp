@@ -2247,6 +2247,6 @@ bool RootMove::extract_ponder_from_tt(const TranspositionTable& tt, Position& po
     return pv.size() > 1;
 }
 
-TUNE(ContHistThreshold, ContHistBonus);
+//TUNE(ContHistThreshold, ContHistBonus);
 
 }  // namespace Stockfish
