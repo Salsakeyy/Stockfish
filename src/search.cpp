@@ -53,8 +53,8 @@ namespace Stockfish {
 
 namespace TB = Tablebases;
 
-int ContHistThreshold = 50;  
-int ContHistBonus = 512;     
+int ContHistThreshold = 49;  
+int ContHistBonus = 501;     
 
 
 void syzygy_extend_pv(const OptionsMap&            options,
